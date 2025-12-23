@@ -1,0 +1,52 @@
+{% block content %}
+{% load static %}
+{% include 'header.html' %}
+
+<section class="section-padding">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h2 class="mb-4 text-center">My Results</h2>
+
+                <div class="row">
+                    {% for result in results %}
+                    <div class="col-lg-4 col-md-6 col-12 mb-4">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title">Result #{{ result.id }}</h5>
+                                <p class="card-text">
+                                    <strong>Result:</strong> {{ result.result }}
+                                </p>
+                                {% if result.file %}
+                                <div class="mb-3">
+                                    <img src="{{ result.file.url }}" class="img-fluid rounded" alt="Uploaded file" style="max-height: 200px;">
+                                </div>
+                                {% endif %}
+                                <p class="text-muted small">
+                                    Uploaded on: {{ result.created_at|date:"M d, Y H:i" }}
+                                </p>
+                                <div class="d-flex justify-content-between">
+                                    <a href="{{ result.file.url }}" target="_blank" class="btn btn-primary btn-sm">View Full Image</a>
+                                    <button class="btn btn-danger btn-sm">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-12">
+                        <div class="text-center py-5">
+                            <i class="fa fa-file-o fa-4x text-muted mb-3"></i>
+                            <h4 class="text-muted">No results found</h4>
+                            <p class="text-muted">You haven't uploaded any files yet.</p>
+                            <a href="{% url 'upload_file' %}" class="btn btn-primary">Upload Your First File</a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% include 'footer.html' %}
+{% endblock %}
