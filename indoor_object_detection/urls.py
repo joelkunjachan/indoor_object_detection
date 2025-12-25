@@ -31,9 +31,14 @@ urlpatterns = [
     # Admin URLs
     path('admin/view-users/', views.view_users, name='view_users'),
     path('admin/view-results/', views.view_results, name='view_results'),
+    path('admin/view-user-activities/', views.view_user_activities, name='view_user_activities'),
     # User URLs
     path('user/upload/', views.upload_file, name='upload_file'),
     path('user/results/', views.view_user_results, name='view_user_results'),
+    path('speech_recognition/', views.speech_recognition, name='speech_recognition'),
+    path('navigation/', views.test_navigation, name='navigation'),
+    path('navigate/', views.navigate, name='navigate'),
+    path('stop_detection/', views.stop_detection, name='stop_detection'),
     path('admin/', admin.site.urls),
 ]
 

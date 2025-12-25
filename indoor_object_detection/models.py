@@ -19,3 +19,10 @@ class fileupload(models.Model):
     file=models.FileField(max_length=150)
     result=models.CharField(max_length=150)
     created_at = models.DateTimeField(auto_now_add=True)
+
+class UserActivity(models.Model):
+    user = models.ForeignKey(user, on_delete=models.CASCADE)
+    username = models.CharField(max_length=150)
+    object_search = models.CharField(max_length=100)
+    time = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True)

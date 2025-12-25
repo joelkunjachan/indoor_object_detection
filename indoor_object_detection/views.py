@@ -6,6 +6,12 @@ from  django.core.files.storage import FileSystemStorage
 # SESSION
 from django.conf import settings
 from .models import *
+import os
+import subprocess
+import sys
+from ML import speech_to_text
+
+active_processes = {}
 
 
 
@@ -95,6 +101,58 @@ def upload_file(request):
         })
 
     return render(request, 'upload.html')
+
+def speech_recognition(request):
+    object_search = speech_to_text.predict()
+    request.session["object_search"] = object_search
+    return render(request,'navigation.html')
+
+def test_navigation(request):
+    return render(request,'navigation.html')
+
+def navigate(request):
+    if not request.session.get('uid'):
+        return redirect('login')
+    uid = request.session['uid']
+    if uid in active_processes and active_processes[uid].poll() is None:
+        # Process already running, perhaps redirect to detecting
+        return render(request, 'detecting.html')
+    else:
+
+        object_search = request.session.get("object_search", "")
+        # Save user activity
+        username = user.objects.get(id=uid).name
+        UserActivity.objects.create(user_id=uid, username=username, object_search=object_search)
+        object_det_cmd = [
+            sys.executable, 'object_detect_v7/detect.py',
+            '--weights', 'object_detect_v7/yolov7x.pt',
+            '--source', '0',
+            '--view-img',
+            '--object-search', object_search
+        ]
+        process = subprocess.Popen(object_det_cmd)
+        active_processes[uid] = process
+        return render(request, 'detecting.html')
+
+def stop_detection(request):
+    if request.session.get('uid'):
+        uid = request.session['uid']
+        if uid in active_processes:
+            process = active_processes[uid]
+            if process.poll() is None:
+                process.terminate()
+                try:
+                    process.wait(timeout=5)
+                except subprocess.TimeoutExpired:
+                    process.kill()
+            del active_processes[uid]
+    return redirect('navigation')
+
+def view_user_activities(request):
+    if request.session.get('details') != 'admin':
+        return redirect('login')
+    activities = UserActivity.objects.select_related('user').all().order_by('-time')
+    return render(request, 'view_user_activities.html', {'activities': activities})
 
 def view_user_results(request):
     if not request.session.get('uid'):
